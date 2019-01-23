@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/louisevanderlith/mango/api/router/routers"
-	"github.com/louisevanderlith/mango/pkg"
-	"github.com/louisevanderlith/mango/pkg/enums"
+	"github.com/louisevanderlith/mango"
+	"github.com/louisevanderlith/mango/enums"
+	"github.com/louisevanderlith/router/routers"
 
 	"github.com/astaxie/beego"
 )
@@ -18,7 +18,7 @@ func main() {
 
 	// Register with router
 	appName := beego.BConfig.AppName
-	srv := util.NewService(mode, appName, enums.API)
+	srv := mango.NewService(mode, appName, enums.API)
 
 	routers.Setup(srv)
 	beego.Run()

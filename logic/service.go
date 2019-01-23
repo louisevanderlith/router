@@ -8,15 +8,15 @@ import (
 
 	"github.com/astaxie/beego"
 
-	"github.com/louisevanderlith/mango/pkg"
-	"github.com/louisevanderlith/mango/pkg/enums"
+	"github.com/louisevanderlith/mango"
+	"github.com/louisevanderlith/mango/enums"
 
 	"strings"
 
 	uuid "github.com/nu7hatch/gouuid"
 )
 
-type Services []*util.Service
+type Services []*mango.Service
 
 var serviceMap map[string]Services
 
@@ -29,7 +29,7 @@ func GetServiceMap() map[string]Services {
 }
 
 // AddService registers a new service and returns a key for that entry
-func AddService(service *util.Service) (string, error) {
+func AddService(service *mango.Service) (string, error) {
 	if !strings.Contains(service.Name, ".") {
 		return "", errors.New("invalid service Name")
 	}
@@ -56,7 +56,7 @@ func AddService(service *util.Service) (string, error) {
 	return service.ID, nil
 }
 
-func isDuplicate(s *util.Service) (*util.Service, bool) {
+func isDuplicate(s *mango.Service) (*mango.Service, bool) {
 	items, _ := serviceMap[s.Name]
 
 	for _, value := range items {
@@ -115,8 +115,8 @@ func getAllowedCaller(serviceType enums.ServiceType) enums.ServiceType {
 	return result
 }
 
-func getService(serviceName string, environment enums.Environment, callerType enums.ServiceType) *util.Service {
-	var result *util.Service
+func getService(serviceName string, environment enums.Environment, callerType enums.ServiceType) *mango.Service {
+	var result *mango.Service
 	serviceItems := serviceMap[serviceName]
 
 	if serviceItems != nil {
@@ -134,8 +134,8 @@ func getService(serviceName string, environment enums.Environment, callerType en
 	return result
 }
 
-func getRequestingService(appID string) *util.Service {
-	var result *util.Service
+func getRequestingService(appID string) *mango.Service {
+	var result *mango.Service
 
 	for _, serviceItems := range serviceMap {
 		for _, val := range serviceItems {

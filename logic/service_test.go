@@ -3,15 +3,15 @@ package logic
 import (
 	"testing"
 
-	"github.com/louisevanderlith/mango/pkg"
-	"github.com/louisevanderlith/mango/pkg/enums"
+	"github.com/louisevanderlith/mango/"
+	"github.com/louisevanderlith/mango/enums"
 
 	uuid "github.com/nu7hatch/gouuid"
 )
 
-func dummyService(name string) *util.Service {
-	return util.NewService(enums.DEV.String(), name, enums.API)
-	/*  util.Service{
+func dummyService(name string) *mango.Service {
+	return mango.NewService(enums.DEV.String(), name, enums.API)
+	/*  mango.Service{
 	Environment: enums.LIVE,
 	Name:        name,
 	URL:         "http://127.0.01/" + name,

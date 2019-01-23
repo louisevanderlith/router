@@ -6,9 +6,9 @@ import (
 
 	"strconv"
 
-	"github.com/louisevanderlith/mango/api/router/logic"
-	"github.com/louisevanderlith/mango/pkg"
-	"github.com/louisevanderlith/mango/pkg/control"
+	"github.com/louisevanderlith/router/logic"
+	"github.com/louisevanderlith/mango"
+	"github.com/louisevanderlith/mango/control"
 )
 
 type DiscoveryController struct {
@@ -24,12 +24,12 @@ func NewDiscoveryCtrl(ctrlMap *control.ControllerMap) *DiscoveryController {
 
 // @Title RegisterAPI
 // @Description Register an API
-// @Param	body		body 	util.Service	true		"body for service content"
+// @Param	body		body 	mango.Service	true		"body for service content"
 // @Success 200 {string} models.Service.ID
 // @Failure 403 body is empty
 // @router / [post]
 func (req *DiscoveryController) Post() {
-	service := &util.Service{}
+	service := &mango.Service{}
 	json.Unmarshal(req.Ctx.Input.RequestBody, service)
 
 	appID, err := logic.AddService(service)
@@ -42,7 +42,7 @@ func (req *DiscoveryController) Post() {
 // @Param	appID			path	string 	true		"the application requesting a service"
 // @Param	serviceName		path 	string	true		"the name of the service you want to get"
 // @Param	clean			path 	bool	false		"clean will return a user friendly URL and not the application's actual URL"
-// @Success 200 {string} util.Service.URL
+// @Success 200 {string} mango.Service.URL
 // @Failure 403 :serviceName or :appID is empty
 // @router /:appID/:serviceName/:clean [get]
 func (req *DiscoveryController) Get() {
@@ -69,7 +69,7 @@ func (req *DiscoveryController) Get() {
 // @Description Gets the recommended service
 // @Param	appID			path	string 	true		"the application requesting a service"
 // @Param	serviceName		path 	string	true		"the name of the service you want to get"
-// @Success 200 {string} util.Service.URL
+// @Success 200 {string} mango.Service.URL
 // @Failure 403 :serviceName or :appID is empty
 // @router /:appID/:serviceName [get]
 func (req *DiscoveryController) GetDirty() {

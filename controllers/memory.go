@@ -1,8 +1,8 @@
 package controllers
 
 import (
-	"github.com/louisevanderlith/mango/api/router/logic"
-	"github.com/louisevanderlith/mango/pkg/control"
+	"github.com/louisevanderlith/router/logic"
+	"github.com/louisevanderlith/mango/control"
 )
 
 type MemoryController struct {
