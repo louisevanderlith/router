@@ -8,9 +8,9 @@
 package routers
 
 import (
-	"github.com/louisevanderlith/router/controllers"
 	"github.com/louisevanderlith/mango"
 	"github.com/louisevanderlith/mango/control"
+	"github.com/louisevanderlith/router/controllers"
 
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/plugins/cors"
@@ -19,20 +19,10 @@ import (
 func Setup(s *mango.Service) {
 	ctrlmap := EnableFilter(s)
 
-	ns := beego.NewNamespace("/v1",
-		beego.NSNamespace("/discovery",
-			beego.NSInclude(
-				controllers.NewDiscoveryCtrl(ctrlmap),
-			),
-		),
-		beego.NSNamespace("/memory",
-			beego.NSInclude(
-				controllers.NewMemoryCtrl(ctrlmap),
-			),
-		),
-	) 
-
-	beego.AddNamespace(ns)
+	beego.Router("/v1/discovery", controllers.NewDiscoveryCtrl(ctrlmap), "post:Post")
+	beego.Router("/v1/discovery/:appID/:serviceName", controllers.NewDiscoveryCtrl(ctrlmap), "get:GetDirty")
+	beego.Router("/v1/discovery/:appID/:serviceName/:clean", controllers.NewDiscoveryCtrl(ctrlmap), "get:Get")
+	beego.Router("/v1/memory", controllers.NewMemoryCtrl(ctrlmap))
 }
 
 func EnableFilter(s *mango.Service) *control.ControllerMap {

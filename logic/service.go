@@ -83,10 +83,10 @@ func GetServicePath(serviceName, appID string, clean bool) (string, error) {
 		return "https://" + strings.ToLower(keyName) + cleanHost, nil
 	}
 
-	service := getService(serviceName, requestingApp.Environment, requestingApp.Type)
+	service, err := getService(serviceName, requestingApp.Environment, requestingApp.Type)
 
-	if service == nil {
-		return "", fmt.Errorf("%s wasn't found for the requesting application", serviceName)
+	if err != nil {
+		return "", fmt.Errorf("not found. %+v", err)
 	}
 
 	return service.URL, nil
@@ -115,23 +115,25 @@ func getAllowedCaller(serviceType enums.ServiceType) enums.ServiceType {
 	return result
 }
 
-func getService(serviceName string, environment enums.Environment, callerType enums.ServiceType) *mango.Service {
+func getService(serviceName string, environment enums.Environment, callerType enums.ServiceType) (*mango.Service, error) {
 	var result *mango.Service
-	serviceItems := serviceMap[serviceName]
+	serviceItems, ok := serviceMap[serviceName]
 
-	if serviceItems != nil {
-		for _, val := range serviceItems {
-			correctEnv := val.Environment == environment
-			isAllowed := val.AllowedCaller == enums.ANY || val.AllowedCaller == callerType
+	if !ok {
+		return nil, fmt.Errorf("%s not in serviceMap", serviceName)
+	}
 
-			if correctEnv && isAllowed {
-				result = val
-				break
-			}
+	for _, val := range serviceItems {
+		correctEnv := val.Environment == environment
+		isAllowed := val.AllowedCaller == enums.ANY || val.AllowedCaller == callerType
+
+		if correctEnv && isAllowed {
+			result = val
+			break
 		}
 	}
 
-	return result
+	return result, nil
 }
 
 func getRequestingService(appID string) *mango.Service {
