@@ -19,9 +19,11 @@ import (
 func Setup(s *mango.Service) {
 	ctrlmap := EnableFilter(s)
 
-	beego.Router("/v1/discovery", controllers.NewDiscoveryCtrl(ctrlmap), "post:Post")
-	beego.Router("/v1/discovery/:appID/:serviceName", controllers.NewDiscoveryCtrl(ctrlmap), "get:GetDirty")
-	beego.Router("/v1/discovery/:appID/:serviceName/:clean", controllers.NewDiscoveryCtrl(ctrlmap), "get:Get")
+	discoCtrl := controllers.NewDiscoveryCtrl(ctrlmap)
+
+	beego.Router("/v1/discovery", discoCtrl, "post:Post")
+	beego.Router("/v1/discovery/:appID/:serviceName", discoCtrl, "get:GetDirty")
+	beego.Router("/v1/discovery/:appID/:serviceName/:clean", discoCtrl, "get:Get")
 	beego.Router("/v1/memory", controllers.NewMemoryCtrl(ctrlmap))
 }
 
