@@ -10,6 +10,6 @@ Also please ensure that all containers are running on the same bridge network.
 ## Run with Docker
 *$ go build
 *$ docker build -t avosa/router:latest .
-*$ docker rm routerDEV
-*$ docker run -d -e RUNMODE=DEV -p 8080:8080 --network mango_net --name routerDEV avosa/router:latest 
-*$ docker logs routerDEV
+*$ docker rm RouterDEV
+*$ docker run -d -e RUNMODE=DEV -p 8080:8080 --network mango_net --name RouterDEV avosa/router:latest 
+*$ docker logs RouterDEV

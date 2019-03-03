@@ -32,6 +32,10 @@ github.com/louisevanderlith/husk v0.0.0-20181202133139-ef9019913e69 h1:UV0sQzgik
 github.com/louisevanderlith/husk v0.0.0-20181202133139-ef9019913e69/go.mod h1:FiREVNZW48kA++iCekTEqFLcpe1m31+FQhd1ePm0YLA=
 github.com/louisevanderlith/mango v0.2.0 h1:qBVBnCIfhDQvGjSpLftzuQRXNyWFoogXNCTvPg61y/k=
 github.com/louisevanderlith/mango v0.2.0/go.mod h1:HgTP32VLyeos6GZCfMnPMWT9OcYe313qmL7ZUgfwSFQ=
+github.com/louisevanderlith/mango v0.2.1 h1:LQZj9VfY1uIUJf2xdd06HxP3XIpjWmVT13XF7Inui7Q=
+github.com/louisevanderlith/mango v0.2.1/go.mod h1:HgTP32VLyeos6GZCfMnPMWT9OcYe313qmL7ZUgfwSFQ=
+github.com/louisevanderlith/mango v0.2.12 h1:yv07wH0qyA6RDrBecyfrWyIIabiaukkHueyYxKD6dF8=
+github.com/louisevanderlith/mango v0.2.12/go.mod h1:HgTP32VLyeos6GZCfMnPMWT9OcYe313qmL7ZUgfwSFQ=
 github.com/mattn/go-sqlite3 v1.10.0/go.mod h1:FPy6KqzDD04eiIsT53CuJW3U88zkxoIYsOqkbpncsNc=
 github.com/nu7hatch/gouuid v0.0.0-20131221200532-179d4d0c4d8d h1:VhgPp6v9qf9Agr/56bj7Y/xa04UccTW04VP0Qed4vnQ=
 github.com/nu7hatch/gouuid v0.0.0-20131221200532-179d4d0c4d8d/go.mod h1:YUTz3bUH2ZwIWBy3CJBeOBEugqcmXREj14T+iG/4k4U=

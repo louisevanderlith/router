@@ -116,7 +116,7 @@ func getAllowedCaller(serviceType enums.ServiceType) enums.ServiceType {
 }
 
 func getService(serviceName string, environment enums.Environment, callerType enums.ServiceType) (*mango.Service, error) {
-	var result *mango.Service
+	//var result *mango.Service
 	serviceItems, ok := serviceMap[serviceName]
 
 	if !ok {
@@ -128,12 +128,11 @@ func getService(serviceName string, environment enums.Environment, callerType en
 		isAllowed := val.AllowedCaller == enums.ANY || val.AllowedCaller == callerType
 
 		if correctEnv && isAllowed {
-			result = val
-			break
+			return val, nil
 		}
 	}
 
-	return result, nil
+	return nil, errors.New("no allowed services available")
 }
 
 func getRequestingService(appID string) *mango.Service {
