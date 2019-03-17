@@ -3,10 +3,9 @@ package logic
 import (
 	"errors"
 	"fmt"
+	"os"
 	"strconv"
 	"time"
-
-	"github.com/astaxie/beego"
 
 	"github.com/louisevanderlith/mango"
 	"github.com/louisevanderlith/mango/enums"
@@ -78,7 +77,7 @@ func GetServicePath(serviceName, appID string, clean bool) (string, error) {
 
 	if clean {
 		keyName := strings.Split(serviceName, ".")[0]
-		cleanHost := getCleanHost(requestingApp.Environment)
+		cleanHost := os.Getenv("HOST")
 
 		return "https://" + strings.ToLower(keyName) + cleanHost, nil
 	}
@@ -86,20 +85,10 @@ func GetServicePath(serviceName, appID string, clean bool) (string, error) {
 	service, err := getService(serviceName, requestingApp.Environment, requestingApp.Type)
 
 	if err != nil {
-		return "", fmt.Errorf("not found. %+v", err)
+		return "", fmt.Errorf("%s not found. %+v", serviceName, err)
 	}
 
 	return service.URL, nil
-}
-
-func getCleanHost(env enums.Environment) string {
-	envHost := fmt.Sprintf("HOST_%s", env)
-
-	if len(envHost) == 0 {
-		envHost = "HOST_DEV"
-	}
-
-	return beego.AppConfig.String(envHost)
 }
 
 func getAllowedCaller(serviceType enums.ServiceType) enums.ServiceType {
