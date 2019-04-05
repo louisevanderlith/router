@@ -12,7 +12,7 @@ COPY routers ./routers
 
 RUN CGO_ENABLED="0" go build
 
-FROM alpine:latest
+FROM scratch
 
 COPY --from=builder /box/router .
 COPY conf conf
