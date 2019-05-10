@@ -3,12 +3,13 @@ package controllers
 import (
 	"encoding/json"
 	"errors"
+	"net/http"
 
 	"strconv"
 
-	"github.com/louisevanderlith/router/logic"
 	"github.com/louisevanderlith/mango"
 	"github.com/louisevanderlith/mango/control"
+	"github.com/louisevanderlith/router/logic"
 )
 
 type DiscoveryController struct {
@@ -34,7 +35,11 @@ func (req *DiscoveryController) Post() {
 
 	appID, err := logic.AddService(service)
 
-	req.Serve(appID, err)
+	if err != nil {
+		req.Serve(http.StatusInternalServerError, err, nil)
+	}
+
+	req.Serve(http.StatusOK, nil, appID)
 }
 
 // @Title GetService
@@ -51,7 +56,7 @@ func (req *DiscoveryController) Get() {
 
 	if appID == "" || serviceName == "" {
 		err := errors.New("appID AND serviceName must be populated")
-		req.Serve(nil, err)
+		req.Serve(http.StatusBadRequest, err, nil)
 		return
 	}
 
@@ -62,7 +67,13 @@ func (req *DiscoveryController) Get() {
 	}
 
 	url, err := logic.GetServicePath(serviceName, appID, clean)
-	req.Serve(url, err)
+
+	if err != nil {
+		req.Serve(http.StatusInternalServerError, err, nil)
+		return
+	}
+
+	req.Serve(http.StatusOK, nil, url)
 }
 
 // @Title GetDirtyService
@@ -78,11 +89,16 @@ func (req *DiscoveryController) GetDirty() {
 
 	if appID == "" || serviceName == "" {
 		err := errors.New("appID AND serviceName must be populated")
-		req.Serve(nil, err)
+		req.Serve(http.StatusBadRequest, err, nil)
 		return
 	}
 
 	url, err := logic.GetServicePath(serviceName, appID, false)
 
-	req.Serve(url, err)
+	if err != nil {
+		req.Serve(http.StatusInternalServerError, err, nil)
+		return
+	}
+
+	req.Serve(http.StatusOK, nil, url)
 }
