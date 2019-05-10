@@ -1,8 +1,10 @@
 package controllers
 
 import (
-	"github.com/louisevanderlith/router/logic"
+	"net/http"
+
 	"github.com/louisevanderlith/mango/control"
+	"github.com/louisevanderlith/router/logic"
 )
 
 type MemoryController struct {
@@ -22,5 +24,5 @@ func NewMemoryCtrl(ctrlMap *control.ControllerMap) *MemoryController {
 // @router / [get]
 func (req *MemoryController) Get() {
 	srvMap := logic.GetServiceMap()
-	req.Serve(srvMap, nil)
+	req.Serve(http.StatusOK, nil, srvMap)
 }

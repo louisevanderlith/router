@@ -33,11 +33,11 @@ func EnableFilter(s *mango.Service) *control.ControllerMap {
 	ctrlmap := control.CreateControlMap(s)
 
 	emptyMap := make(secure.ActionMap)
+	ctrlmap.Add("/v1/discovery", emptyMap)
+
 	userMap := make(secure.ActionMap)
 	userMap["GET"] = roletype.Admin
-
-	ctrlmap.Add("/discovery", emptyMap)
-	ctrlmap.Add("/memory", userMap)
+	ctrlmap.Add("/v1/memory", userMap)
 
 	beego.InsertFilter("*", beego.BeforeRouter, cors.Allow(&cors.Options{
 		AllowAllOrigins: true,
@@ -45,6 +45,8 @@ func EnableFilter(s *mango.Service) *control.ControllerMap {
 		AllowHeaders:    []string{"Origin", "Authorization", "Access-Control-Allow-Origin", "Content-Type"},
 		ExposeHeaders:   []string{"Content-Length", "Access-Control-Allow-Origin"},
 	}))
+
+	beego.InsertFilter("/v1/memory", beego.BeforeRouter, ctrlmap.FilterAPI)
 
 	return ctrlmap
 }
