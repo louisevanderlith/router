@@ -57,10 +57,14 @@ github.com/louisevanderlith/mango v0.3.37 h1:Chi+Bv4OYYg5ArJYKzMD6Fiu+dEKIlZE/r/
 github.com/louisevanderlith/mango v0.3.37/go.mod h1:r2JuqvWCgrcanfgL1V9l9aVEF24BOA8Jh2QDaakjJRM=
 github.com/louisevanderlith/mango v0.3.44 h1:OrqSyY22LlWs+aKflKcDHV1um8V/tZxAV88DnApaQNY=
 github.com/louisevanderlith/mango v0.3.44/go.mod h1:r2JuqvWCgrcanfgL1V9l9aVEF24BOA8Jh2QDaakjJRM=
+github.com/louisevanderlith/mango v0.3.47 h1:NaY7JWDTyUcDPGUm33Ukoc5ah0V4SXhpzWmghdPd2RU=
+github.com/louisevanderlith/mango v0.3.47/go.mod h1:r2JuqvWCgrcanfgL1V9l9aVEF24BOA8Jh2QDaakjJRM=
 github.com/louisevanderlith/secure v0.0.0-20190405144636-b7fb199bb689/go.mod h1:r8RUEvDA4onIU4FxTbJNVcszOquBhE7EgVA6iq7Ln98=
 github.com/louisevanderlith/secure v0.1.0/go.mod h1:M0cpImwBIehj7GqvN6WC1z3kiv98mjTiwngopuVvKHY=
 github.com/louisevanderlith/secure v0.1.1 h1:KJKIomoG3TZDUvyzrSAbnytpFY2YGWsen6GiQEdg0Dw=
 github.com/louisevanderlith/secure v0.1.1/go.mod h1:S1tG+DVt1GUyzwsDcDtbXM3t8UZ90hLW6yJ+IHTnFBo=
+github.com/louisevanderlith/secure v0.1.12 h1:F7yOKUKEuErZo4iqFYiu2R8r8ClMRFtEpHhx/ixIK1U=
+github.com/louisevanderlith/secure v0.1.12/go.mod h1:cC83UP+7JpdYwt358I6EvcA2BmuBRNej2t4gZKNKVDs=
 github.com/mattn/go-sqlite3 v1.10.0/go.mod h1:FPy6KqzDD04eiIsT53CuJW3U88zkxoIYsOqkbpncsNc=
 github.com/nu7hatch/gouuid v0.0.0-20131221200532-179d4d0c4d8d h1:VhgPp6v9qf9Agr/56bj7Y/xa04UccTW04VP0Qed4vnQ=
 github.com/nu7hatch/gouuid v0.0.0-20131221200532-179d4d0c4d8d/go.mod h1:YUTz3bUH2ZwIWBy3CJBeOBEugqcmXREj14T+iG/4k4U=
