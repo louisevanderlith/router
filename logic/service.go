@@ -48,7 +48,7 @@ func AddService(service *mango.Service) (string, error) {
 
 	service.ID = u4.String()
 	service.Version = getVersion()
-	service.AllowedCaller = getAllowedCaller(service.Type)
+	service.AllowedCallers = getAllowedCaller(service.Type)
 
 	serviceMap[service.Name] = append(serviceMap[service.Name], service)
 
@@ -91,21 +91,28 @@ func GetServicePath(serviceName, appID string, clean bool) (string, error) {
 	return service.URL, nil
 }
 
-func getAllowedCaller(serviceType enums.ServiceType) enums.ServiceType {
-	var result enums.ServiceType
+func getAllowedCaller(serviceType enums.ServiceType) map[enums.ServiceType]struct{} {
+	result := make(map[enums.ServiceType]struct{})
+	if serviceType == enums.APP {
+		result[enums.ANY] = struct{}{}
+		return result
+	}
 
-	switch serviceType {
-	case enums.API:
-		result = enums.APP
-	case enums.APP:
-		result = enums.ANY
+	if serviceType == enums.APX {
+		result[enums.APP] = struct{}{}
+		return result
+	}
+
+	if serviceType == enums.API {
+		result[enums.APX] = struct{}{}
+		result[enums.APP] = struct{}{}
+		return result
 	}
 
 	return result
 }
 
 func getService(serviceName string, environment enums.Environment, callerType enums.ServiceType) (*mango.Service, error) {
-	//var result *mango.Service
 	serviceItems, ok := serviceMap[serviceName]
 
 	if !ok {
@@ -114,9 +121,10 @@ func getService(serviceName string, environment enums.Environment, callerType en
 
 	for _, val := range serviceItems {
 		correctEnv := val.Environment == environment
-		isAllowed := val.AllowedCaller == enums.ANY || val.AllowedCaller == callerType
+		_, allowAny := val.AllowedCallers[enums.ANY]
+		_, isAllowed := val.AllowedCallers[callerType]
 
-		if correctEnv && isAllowed {
+		if correctEnv && (allowAny || isAllowed) {
 			return val, nil
 		}
 	}
