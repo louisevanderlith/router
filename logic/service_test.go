@@ -10,7 +10,7 @@ import (
 )
 
 func dummyService(name string) *mango.Service {
-	return mango.NewService(enums.DEV.String(), name, enums.API)
+	return mango.NewService(enums.DEV.String(), name, "", enums.API)
 	/*  mango.Service{
 	Environment: enums.LIVE,
 	Name:        name,
@@ -19,7 +19,7 @@ func dummyService(name string) *mango.Service {
 }
 
 func TestAddService_ShouldCreateUUID(t *testing.T) {
-	service := dummyService("Test.Service")
+	service := dummyService("Test.API")
 
 	result, err := AddService(service)
 
@@ -33,12 +33,18 @@ func TestAddService_ShouldCreateUUID(t *testing.T) {
 }
 
 func TestGetService_AllowedCaller_ForApplication_IsAll(t *testing.T) {
-	app := dummyService("Test.App")
+	app := dummyService("Test.APP")
 	app.Type = enums.APP
 
 	AddService(app)
 
-	result := getService("Test.App", enums.DEV, app.Type)
+	result, err := getService("Test.APP", enums.DEV, app.Type)
+
+	if err != nil {
+		t.Error(err)
+		return
+	}
+
 	expect := enums.ANY
 
 	if result.AllowedCaller != expect {
@@ -47,7 +53,7 @@ func TestGetService_AllowedCaller_ForApplication_IsAll(t *testing.T) {
 }
 
 func TestGetServicePath_SameEnv_ShouldFindService(t *testing.T) {
-	requestor := dummyService("Test.Main")
+	requestor := dummyService("Test.APP")
 	requestor.Type = enums.APP
 	requestorID, err := AddService(requestor)
 
@@ -55,10 +61,10 @@ func TestGetServicePath_SameEnv_ShouldFindService(t *testing.T) {
 		t.Error(err)
 	}
 
-	api := dummyService("Test.Api")
+	api := dummyService("Test.API")
 	AddService(api)
 
-	_, err = GetServicePath("Test.Api", requestorID, false)
+	_, err = GetServicePath("Test.API", requestorID, false)
 
 	if err != nil {
 		t.Error(err)
@@ -66,7 +72,7 @@ func TestGetServicePath_SameEnv_ShouldFindService(t *testing.T) {
 }
 
 func TestGetServicePath_DiffEnv_ShouldHaveError(t *testing.T) {
-	requestor := dummyService("Test.Main")
+	requestor := dummyService("Test.APP")
 	requestor.Type = enums.APP
 	requestorID, err := AddService(requestor)
 
@@ -74,24 +80,24 @@ func TestGetServicePath_DiffEnv_ShouldHaveError(t *testing.T) {
 		t.Error(err)
 	}
 
-	api := dummyService("Test.Api")
+	api := dummyService("Test.API")
 	api.Environment = enums.UAT
 	AddService(api)
 
-	_, err = GetServicePath("Test.Api", requestorID, false)
+	_, err = GetServicePath("Test.API", requestorID, false)
 
 	if err == nil {
-		t.Error("Expecting an error message: Test.Api wasn't found for the requesting application")
+		t.Error("Expecting an error message: Test.API wasn't found for the requesting application")
 	}
 }
 
 func TestGetServicePath_FakeRequestorID_ShouldHaveError(t *testing.T) {
 	requestorID, _ := uuid.NewV4()
 
-	api := dummyService("Test.Api")
+	api := dummyService("Test.API")
 	AddService(api)
 
-	_, err := GetServicePath("Test.Api", requestorID.String(), false)
+	_, err := GetServicePath("Test.API", requestorID.String(), false)
 
 	if err == nil {
 		t.Error("Expecting an error message: Couldn't find an application with the given appID")
@@ -107,9 +113,9 @@ func TestGetServicePath_SameService__CantCallSelf_ShouldHaveError(t *testing.T) 
 		t.Error(err)
 	}
 
-	_, err = GetServicePath("Test.Api", requestorID, false)
+	_, err = GetServicePath("Test.API", requestorID, false)
 
 	if err == nil {
-		t.Error("Expecting 'Test.Api wasn't found for the requesting application'")
+		t.Error("Expecting 'Test.API wasn't found for the requesting application'")
 	}
 }
