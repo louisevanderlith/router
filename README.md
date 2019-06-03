@@ -21,5 +21,5 @@ This function is used to register an application.
 ## Run with Docker
 * $ docker build -t avosa/router:dev .
 * $ docker rm RouterDEV
-* $ docker run -d -e RUNMODE=DEV -p 8080:8080 --network mango_net --name RouterDEV avosa/router:dev 
+* $ docker run -d -p 8080:8080 --network mango_net --name RouterDEV avosa/router:dev 
 * $ docker logs RouterDEV

@@ -14,7 +14,6 @@ import (
 )
 
 func main() {
-	mode := os.Getenv("RUNMODE")
 	keyPath := os.Getenv("KEYPATH")
 	pubName := os.Getenv("PUBLICKEY")
 	host := os.Getenv("HOST")
@@ -22,7 +21,7 @@ func main() {
 
 	// Register with router
 	appName := beego.BConfig.AppName
-	srv := mango.NewService(mode, appName, pubPath, enums.API)
+	srv := mango.NewService(appName, pubPath, enums.API)
 
 	//Doesn't have to make a request to register, but it still needs to Register
 	_, err := logic.AddService(srv)
