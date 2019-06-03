@@ -2,6 +2,7 @@ package main
 
 import (
 	"os"
+	"path"
 
 	"github.com/louisevanderlith/router/logic"
 
@@ -13,12 +14,14 @@ import (
 )
 
 func main() {
-	mode := os.Getenv("RUNMODE")
-	pubPath := os.Getenv("KEYPATH")
-	
+	keyPath := os.Getenv("KEYPATH")
+	pubName := os.Getenv("PUBLICKEY")
+	host := os.Getenv("HOST")
+	pubPath := path.Join(keyPath, pubName)
+
 	// Register with router
 	appName := beego.BConfig.AppName
-	srv := mango.NewService(mode, appName, pubPath, enums.API)
+	srv := mango.NewService(appName, pubPath, enums.API)
 
 	//Doesn't have to make a request to register, but it still needs to Register
 	_, err := logic.AddService(srv)
@@ -27,6 +30,6 @@ func main() {
 		panic(err)
 	}
 
-	routers.Setup(srv)
+	routers.Setup(srv, host)
 	beego.Run()
 }
