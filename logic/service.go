@@ -59,7 +59,7 @@ func isDuplicate(s *mango.Service) (*mango.Service, bool) {
 	items, _ := serviceMap[s.Name]
 
 	for _, value := range items {
-		if value.URL == s.URL && value.Environment == s.Environment {
+		if value.URL == s.URL {
 			return value, true
 		}
 	}
@@ -82,7 +82,7 @@ func GetServicePath(serviceName, appID string, clean bool) (string, error) {
 		return "https://" + strings.ToLower(keyName) + cleanHost, nil
 	}
 
-	service, err := getService(serviceName, requestingApp.Environment, requestingApp.Type)
+	service, err := getService(serviceName, requestingApp.Type)
 
 	if err != nil {
 		return "", fmt.Errorf("%s not found. %+v", serviceName, err)
@@ -112,7 +112,7 @@ func getAllowedCaller(serviceType enums.ServiceType) map[enums.ServiceType]struc
 	return result
 }
 
-func getService(serviceName string, environment enums.Environment, callerType enums.ServiceType) (*mango.Service, error) {
+func getService(serviceName string, callerType enums.ServiceType) (*mango.Service, error) {
 	serviceItems, ok := serviceMap[serviceName]
 
 	if !ok {
@@ -120,11 +120,15 @@ func getService(serviceName string, environment enums.Environment, callerType en
 	}
 
 	for _, val := range serviceItems {
-		correctEnv := val.Environment == environment
 		_, allowAny := val.AllowedCallers[enums.ANY]
+
+		if allowAny {
+			return val, nil
+		}
+
 		_, isAllowed := val.AllowedCallers[callerType]
 
-		if correctEnv && (allowAny || isAllowed) {
+		if isAllowed {
 			return val, nil
 		}
 	}
