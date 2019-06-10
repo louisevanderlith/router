@@ -1,10 +1,3 @@
-// @APIVersion 1.0.0
-// @Title Router API
-// @Description API for the Router
-// @Contact astaxie@gmail.com
-// @TermsOfServiceUrl http://beego.me/
-// @License Apache 2.0
-// @LicenseUrl http://www.apache.org/licenses/LICENSE-2.0.html
 package routers
 
 import (
@@ -21,6 +14,7 @@ import (
 	"github.com/louisevanderlith/secure/core/roletype"
 )
 
+//Setup creates the routing paths and attaches security filters
 func Setup(s *mango.Service, host string) {
 	ctrlmap := EnableFilter(s, host)
 
@@ -29,9 +23,13 @@ func Setup(s *mango.Service, host string) {
 	beego.Router("/v1/discovery", discoCtrl, "post:Post")
 	beego.Router("/v1/discovery/:appID/:serviceName", discoCtrl, "get:GetDirty")
 	beego.Router("/v1/discovery/:appID/:serviceName/:clean", discoCtrl, "get:Get")
-	beego.Router("/v1/memory", controllers.NewMemoryCtrl(ctrlmap))
+
+	memCtrl := controllers.NewMemoryCtrl(ctrlmap)
+	beego.Router("/v1/memory", memCtrl, "get:Get")
+	beego.Router("/v1/memory/apps", memCtrl, "get:GetApps")
 }
 
+//EnableFilter returns a ControllerMap which holds path Role requirements
 func EnableFilter(s *mango.Service, host string) *control.ControllerMap {
 	ctrlmap := control.CreateControlMap(s)
 
