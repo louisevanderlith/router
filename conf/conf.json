@@ -1,0 +1,5 @@
+{
+    "Appname": "Router.API",
+    "HTTPPort": 8080,
+    "Profile": "avosa"
+}

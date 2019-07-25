@@ -3,16 +3,15 @@ package logic
 import (
 	"testing"
 
-	"github.com/louisevanderlith/mango"
-	"github.com/louisevanderlith/mango/enums"
+	"github.com/louisevanderlith/droxolite"
+	"github.com/louisevanderlith/droxolite/servicetype"
 
 	uuid "github.com/nu7hatch/gouuid"
 )
 
-func dummyService(name string) *mango.Service {
-	return mango.NewService(enums.DEV.String(), name, "", enums.API)
+func dummyService(name string) *droxolite.Service {
+	return droxolite.NewService(name, "", 1, servicetype.API)
 	/*  mango.Service{
-	Environment: enums.LIVE,
 	Name:        name,
 	URL:         "http://127.0.01/" + name,
 	Type:        enums.API}*/
@@ -34,27 +33,35 @@ func TestAddService_ShouldCreateUUID(t *testing.T) {
 
 func TestGetService_AllowedCaller_ForApplication_IsAll(t *testing.T) {
 	app := dummyService("Test.APP")
-	app.Type = enums.APP
+	app.Type = servicetype.APP
 
 	AddService(app)
 
-	result, err := getService("Test.APP", enums.DEV, app.Type)
+	result, err := getService("Test.APP", app.Type)
 
 	if err != nil {
 		t.Error(err)
 		return
 	}
 
-	expect := enums.ANY
+	expect := servicetype.ANY
 
-	if result.AllowedCaller != expect {
-		t.Errorf("Allowed Caller is not %s, instead got %s", expect, result.AllowedCaller.String())
+	for _, v := range result.AllowedCallers {
+		if v == expect {
+			return
+		}
+	}
+
+	t.Fail("Allowed Called not Found: ")
+
+	if result.AllowedCallers != expect {
+		t.Errorf("Allowed Caller is not %s, instead got %s", expect, result.AllowedCallers.String())
 	}
 }
 
 func TestGetServicePath_SameEnv_ShouldFindService(t *testing.T) {
 	requestor := dummyService("Test.APP")
-	requestor.Type = enums.APP
+	requestor.Type = servicetype.APP
 	requestorID, err := AddService(requestor)
 
 	if err != nil {
@@ -73,7 +80,7 @@ func TestGetServicePath_SameEnv_ShouldFindService(t *testing.T) {
 
 func TestGetServicePath_DiffEnv_ShouldHaveError(t *testing.T) {
 	requestor := dummyService("Test.APP")
-	requestor.Type = enums.APP
+	requestor.Type = servicetype.APP
 	requestorID, err := AddService(requestor)
 
 	if err != nil {
@@ -81,7 +88,6 @@ func TestGetServicePath_DiffEnv_ShouldHaveError(t *testing.T) {
 	}
 
 	api := dummyService("Test.API")
-	api.Environment = enums.UAT
 	AddService(api)
 
 	_, err = GetServicePath("Test.API", requestorID, false)
@@ -106,7 +112,7 @@ func TestGetServicePath_FakeRequestorID_ShouldHaveError(t *testing.T) {
 
 func TestGetServicePath_SameService__CantCallSelf_ShouldHaveError(t *testing.T) {
 	requestor := dummyService("Test.API")
-	requestor.Type = enums.API
+	requestor.Type = servicetype.API
 	requestorID, err := AddService(requestor)
 
 	if err != nil {

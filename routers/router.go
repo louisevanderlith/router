@@ -1,34 +1,31 @@
 package routers
 
 import (
-	"fmt"
-	"strings"
-
-	"github.com/louisevanderlith/mango"
-	"github.com/louisevanderlith/mango/control"
+	"github.com/louisevanderlith/droxolite"
 	"github.com/louisevanderlith/router/controllers"
 
-	"github.com/astaxie/beego"
-	"github.com/astaxie/beego/plugins/cors"
-	secure "github.com/louisevanderlith/secure/core"
-	"github.com/louisevanderlith/secure/core/roletype"
+	"github.com/louisevanderlith/droxolite/roletype"
 )
 
 //Setup creates the routing paths and attaches security filters
-func Setup(s *mango.Service, host string) {
-	ctrlmap := EnableFilter(s, host)
+func Setup(poxy *droxolite.Epoxy) {
+	//Discovery
+	discoCtrl := &controllers.DiscoveryController{}
+	discoGroup := droxolite.NewRouteGroup("discovery", discoCtrl)
+	discoGroup.AddRoute("/", "POST", roletype.Unknown, discoCtrl.Post)
+	discoGroup.AddRoute("/{appID}/{serviceName:[a-zA-Z.]+}", "GET", roletype.Unknown, discoCtrl.GetDirty)
+	discoGroup.AddRoute("/{appID}/{serviceName:[a-zA-Z.]+}/{clean:true|false}", "GET", roletype.Unknown, discoCtrl.Get)
+	poxy.AddGroup(discoGroup)
 
-	discoCtrl := controllers.NewDiscoveryCtrl(ctrlmap)
-
-	beego.Router("/v1/discovery", discoCtrl, "post:Post")
-	beego.Router("/v1/discovery/:appID/:serviceName", discoCtrl, "get:GetDirty")
-	beego.Router("/v1/discovery/:appID/:serviceName/:clean", discoCtrl, "get:Get")
-
-	memCtrl := controllers.NewMemoryCtrl(ctrlmap)
-	beego.Router("/v1/memory", memCtrl, "get:Get")
-	beego.Router("/v1/memory/apps", memCtrl, "get:GetApps")
+	//Memory
+	memCtrl := &controllers.MemoryController{}
+	memGroup := droxolite.NewRouteGroup("memory", memCtrl)
+	memGroup.AddRoute("/", "GET", roletype.Admin, memCtrl.Get)
+	memGroup.AddRoute("/apps", "GET", roletype.Admin, memCtrl.GetApps)
+	poxy.AddGroup(memGroup)
 }
 
+/*
 //EnableFilter returns a ControllerMap which holds path Role requirements
 func EnableFilter(s *mango.Service, host string) *control.ControllerMap {
 	ctrlmap := control.CreateControlMap(s)
@@ -50,3 +47,4 @@ func EnableFilter(s *mango.Service, host string) *control.ControllerMap {
 
 	return ctrlmap
 }
+*/
