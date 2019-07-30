@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"os"
 	"path"
 
@@ -39,6 +38,6 @@ func main() {
 	err = poxy.Boot()
 
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 }

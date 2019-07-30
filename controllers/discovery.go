@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"errors"
+	"log"
 	"net/http"
 
 	"strconv"
@@ -22,15 +23,21 @@ type DiscoveryController struct {
 // @router / [post]
 func (req *DiscoveryController) Post() {
 	service := &droxolite.Service{}
-	req.Ctx.Body(service)
+	req.Body(service)
 
 	appID, err := logic.AddService(service)
 
 	if err != nil {
+		log.Printf("AddService: %s\n", err.Error())
 		req.Serve(http.StatusInternalServerError, err, nil)
+		return
 	}
 
-	req.Serve(http.StatusOK, nil, appID)
+	err = req.Serve(http.StatusOK, nil, appID)
+
+	if err != nil {
+		log.Printf("Discovery Post: %s\n", err.Error())
+	}
 }
 
 // @Title GetService
@@ -42,8 +49,8 @@ func (req *DiscoveryController) Post() {
 // @Failure 403 :serviceName or :appID is empty
 // @router /:appID/:serviceName/:clean [get]
 func (req *DiscoveryController) Get() {
-	appID := req.Ctx.FindParam("appID")
-	serviceName := req.Ctx.FindParam("serviceName")
+	appID := req.FindParam("appID")
+	serviceName := req.FindParam("serviceName")
 
 	if appID == "" || serviceName == "" {
 		err := errors.New("appID AND serviceName must be populated")
@@ -51,7 +58,7 @@ func (req *DiscoveryController) Get() {
 		return
 	}
 
-	clean, cleanErr := strconv.ParseBool(req.Ctx.FindParam("clean"))
+	clean, cleanErr := strconv.ParseBool(req.FindParam("clean"))
 
 	if cleanErr != nil {
 		clean = false
@@ -60,11 +67,16 @@ func (req *DiscoveryController) Get() {
 	url, err := logic.GetServicePath(serviceName, appID, clean)
 
 	if err != nil {
+		log.Println(err)
 		req.Serve(http.StatusInternalServerError, err, nil)
 		return
 	}
 
-	req.Serve(http.StatusOK, nil, url)
+	err = req.Serve(http.StatusOK, nil, url)
+
+	if err != nil {
+		log.Println(err)
+	}
 }
 
 // @Title GetDirtyService
@@ -75,8 +87,8 @@ func (req *DiscoveryController) Get() {
 // @Failure 403 :serviceName or :appID is empty
 // @router /:appID/:serviceName [get]
 func (req *DiscoveryController) GetDirty() {
-	appID := req.Ctx.FindParam("appID")
-	serviceName := req.Ctx.FindParam("serviceName")
+	appID := req.FindParam("appID")
+	serviceName := req.FindParam("serviceName")
 
 	if appID == "" || serviceName == "" {
 		err := errors.New("appID AND serviceName must be populated")
@@ -87,9 +99,14 @@ func (req *DiscoveryController) GetDirty() {
 	url, err := logic.GetServicePath(serviceName, appID, false)
 
 	if err != nil {
+		log.Println(err)
 		req.Serve(http.StatusInternalServerError, err, nil)
 		return
 	}
 
-	req.Serve(http.StatusOK, nil, url)
+	err = req.Serve(http.StatusOK, nil, url)
+
+	if err != nil {
+		log.Println(err)
+	}
 }

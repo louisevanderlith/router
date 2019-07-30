@@ -31,6 +31,7 @@ func TestAddService_ShouldCreateUUID(t *testing.T) {
 	}
 }
 
+/*
 func TestGetService_AllowedCaller_ForApplication_IsAll(t *testing.T) {
 	app := dummyService("Test.APP")
 	app.Type = servicetype.APP
@@ -57,7 +58,7 @@ func TestGetService_AllowedCaller_ForApplication_IsAll(t *testing.T) {
 	if result.AllowedCallers != expect {
 		t.Errorf("Allowed Caller is not %s, instead got %s", expect, result.AllowedCallers.String())
 	}
-}
+}*/
 
 func TestGetServicePath_SameEnv_ShouldFindService(t *testing.T) {
 	requestor := dummyService("Test.APP")

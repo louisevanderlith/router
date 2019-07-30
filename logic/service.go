@@ -85,7 +85,7 @@ func GetServicePath(serviceName, appID string, clean bool) (string, error) {
 	service, err := getService(serviceName, requestingApp.Type)
 
 	if err != nil {
-		return "", fmt.Errorf("%s not found. %+v", serviceName, err)
+		return "", fmt.Errorf("%s didn't find %s. %+v", requestingApp.Name, serviceName, err)
 	}
 
 	return service.URL, nil
@@ -133,7 +133,7 @@ func getService(serviceName string, callerType servicetype.Enum) (*droxolite.Ser
 		}
 	}
 
-	return nil, errors.New("no allowed services available")
+	return nil, fmt.Errorf("no allowed services available for %v", callerType)
 }
 
 func getRequestingService(appID string) *droxolite.Service {
