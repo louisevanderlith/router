@@ -8,21 +8,21 @@ import (
 )
 
 //Setup creates the routing paths and attaches security filters
-func Setup(poxy *droxolite.Epoxy) {
+func Setup(e *droxolite.Epoxy) {
 	//Discovery
 	discoCtrl := &controllers.DiscoveryController{}
 	discoGroup := droxolite.NewRouteGroup("discovery", discoCtrl)
-	discoGroup.AddRoute("/", "POST", roletype.Unknown, discoCtrl.Post)
-	discoGroup.AddRoute("/{appID}/{serviceName:[a-zA-Z.]+}", "GET", roletype.Unknown, discoCtrl.GetDirty)
-	discoGroup.AddRoute("/{appID}/{serviceName:[a-zA-Z.]+}/{clean:true|false}", "GET", roletype.Unknown, discoCtrl.Get)
-	poxy.AddGroup(discoGroup)
+	discoGroup.AddRoute("Register API", "/", "POST", roletype.Unknown, discoCtrl.Post)
+	discoGroup.AddRoute("Get URL Dirty", "/{appID}/{serviceName:[a-zA-Z.]+}", "GET", roletype.Unknown, discoCtrl.GetDirty)
+	discoGroup.AddRoute("Get URL Clean", "/{appID}/{serviceName:[a-zA-Z.]+}/{clean:true|false}", "GET", roletype.Unknown, discoCtrl.Get)
+	e.AddGroup(discoGroup)
 
 	//Memory
 	memCtrl := &controllers.MemoryController{}
 	memGroup := droxolite.NewRouteGroup("memory", memCtrl)
-	memGroup.AddRoute("/", "GET", roletype.Admin, memCtrl.Get)
-	memGroup.AddRoute("/apps", "GET", roletype.Admin, memCtrl.GetApps)
-	poxy.AddGroup(memGroup)
+	memGroup.AddRoute("Get Registered Services", "/", "GET", roletype.Admin, memCtrl.Get)
+	memGroup.AddRoute("Get Registered Services Names", "/apps", "GET", roletype.Admin, memCtrl.GetApps)
+	e.AddGroup(memGroup)
 }
 
 /*
