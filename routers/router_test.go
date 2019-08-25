@@ -7,24 +7,24 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/louisevanderlith/droxolite"
 	"github.com/louisevanderlith/droxolite/bodies"
+	"github.com/louisevanderlith/droxolite/resins"
 	"github.com/louisevanderlith/droxolite/servicetype"
 	"github.com/louisevanderlith/router/logic"
 )
 
-var apiEpoxy *droxolite.Epoxy
+var apiEpoxy resins.Epoxi
 
 func init() {
-	srvc := droxolite.NewService("Router.API", "/certs/none.pem", 8080, servicetype.API)
+	srvc := bodies.NewService("Router.API", "/certs/none.pem", 8080, servicetype.API)
 	srvc.ID = "RouterTester"
 
-	apiEpoxy = droxolite.NewEpoxy(srvc)
+	apiEpoxy = resins.NewBasicEpoxy(srvc)
 	Setup(apiEpoxy)
 }
 
 func TestDiscovery_POST_OK(t *testing.T) {
-	servc := droxolite.NewService("Nothing.API", "/certs/none.pem", 8095, servicetype.API)
+	servc := bodies.NewService("Nothing.API", "/certs/none.pem", 8095, servicetype.API)
 	obj, err := json.Marshal(servc)
 	req, err := http.NewRequest("POST", "/discovery/", bytes.NewBuffer(obj))
 
@@ -32,7 +32,7 @@ func TestDiscovery_POST_OK(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	handle := apiEpoxy.GetRouter()
+	handle := apiEpoxy.Router()
 
 	rr := httptest.NewRecorder()
 	handle.ServeHTTP(rr, req)

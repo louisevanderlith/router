@@ -7,13 +7,12 @@ import (
 
 	"strconv"
 
-	"github.com/louisevanderlith/droxolite"
-	"github.com/louisevanderlith/droxolite/xontrols"
+	"github.com/louisevanderlith/droxolite/bodies"
+	"github.com/louisevanderlith/droxolite/context"
 	"github.com/louisevanderlith/router/logic"
 )
 
-type DiscoveryController struct {
-	xontrols.APICtrl
+type Discovery struct {
 }
 
 // @Title RegisterAPI
@@ -21,23 +20,17 @@ type DiscoveryController struct {
 // @Success 200 {string} models.Service.ID
 // @Failure 403 body is empty
 // @router / [post]
-func (req *DiscoveryController) Post() {
-	service := &droxolite.Service{}
-	req.Body(service)
+func (req *Discovery) Post(ctx context.Contexer) (int, interface{}) {
+	service := &bodies.Service{}
+	ctx.Body(service)
 
 	appID, err := logic.AddService(service)
 
 	if err != nil {
-		log.Printf("AddService: %s\n", err.Error())
-		req.Serve(http.StatusInternalServerError, err, nil)
-		return
+		return http.StatusInternalServerError, err
 	}
 
-	err = req.Serve(http.StatusOK, nil, appID)
-
-	if err != nil {
-		log.Printf("Discovery Post: %s\n", err.Error())
-	}
+	return http.StatusOK, appID
 }
 
 // @Title GetService
@@ -48,17 +41,16 @@ func (req *DiscoveryController) Post() {
 // @Success 200 {string} Service.URL
 // @Failure 403 :serviceName or :appID is empty
 // @router /:appID/:serviceName/:clean [get]
-func (req *DiscoveryController) Get() {
-	appID := req.FindParam("appID")
-	serviceName := req.FindParam("serviceName")
+func (req *Discovery) Get(ctx context.Contexer) (int, interface{}) {
+	appID := ctx.FindParam("appID")
+	serviceName := ctx.FindParam("serviceName")
 
 	if appID == "" || serviceName == "" {
 		err := errors.New("appID AND serviceName must be populated")
-		req.Serve(http.StatusBadRequest, err, nil)
-		return
+		return http.StatusBadRequest, err
 	}
 
-	clean, cleanErr := strconv.ParseBool(req.FindParam("clean"))
+	clean, cleanErr := strconv.ParseBool(ctx.FindParam("clean"))
 
 	if cleanErr != nil {
 		clean = false
@@ -68,15 +60,10 @@ func (req *DiscoveryController) Get() {
 
 	if err != nil {
 		log.Println(err)
-		req.Serve(http.StatusInternalServerError, err, nil)
-		return
+		return http.StatusInternalServerError, err
 	}
 
-	err = req.Serve(http.StatusOK, nil, url)
-
-	if err != nil {
-		log.Println(err)
-	}
+	return http.StatusOK, url
 }
 
 // @Title GetDirtyService
@@ -86,27 +73,21 @@ func (req *DiscoveryController) Get() {
 // @Success 200 {string} Service.URL
 // @Failure 403 :serviceName or :appID is empty
 // @router /:appID/:serviceName [get]
-func (req *DiscoveryController) GetDirty() {
-	appID := req.FindParam("appID")
-	serviceName := req.FindParam("serviceName")
+func (req *Discovery) GetDirty(ctx context.Contexer) (int, interface{}) {
+	appID := ctx.FindParam("appID")
+	serviceName := ctx.FindParam("serviceName")
 
 	if appID == "" || serviceName == "" {
 		err := errors.New("appID AND serviceName must be populated")
-		req.Serve(http.StatusBadRequest, err, nil)
-		return
+		return http.StatusBadRequest, err
 	}
 
 	url, err := logic.GetServicePath(serviceName, appID, false)
 
 	if err != nil {
 		log.Println(err)
-		req.Serve(http.StatusInternalServerError, err, nil)
-		return
+		return http.StatusInternalServerError, err
 	}
 
-	err = req.Serve(http.StatusOK, nil, url)
-
-	if err != nil {
-		log.Println(err)
-	}
+	return http.StatusOK, url
 }

@@ -1,25 +1,27 @@
 package routers
 
 import (
-	"github.com/louisevanderlith/droxolite"
 	"github.com/louisevanderlith/router/controllers"
 
+	"github.com/louisevanderlith/droxolite/mix"
+	"github.com/louisevanderlith/droxolite/resins"
 	"github.com/louisevanderlith/droxolite/roletype"
+	"github.com/louisevanderlith/droxolite/routing"
 )
 
 //Setup creates the routing paths and attaches security filters
-func Setup(e *droxolite.Epoxy) {
+func Setup(e resins.Epoxi) {
 	//Discovery
-	discoCtrl := &controllers.DiscoveryController{}
-	discoGroup := droxolite.NewRouteGroup("discovery", discoCtrl)
+	discoCtrl := &controllers.Discovery{}
+	discoGroup := routing.NewRouteGroup("discovery", mix.JSON)
 	discoGroup.AddRoute("Register API", "/", "POST", roletype.Unknown, discoCtrl.Post)
 	discoGroup.AddRoute("Get URL Dirty", "/{appID}/{serviceName:[a-zA-Z.]+}", "GET", roletype.Unknown, discoCtrl.GetDirty)
 	discoGroup.AddRoute("Get URL Clean", "/{appID}/{serviceName:[a-zA-Z.]+}/{clean:true|false}", "GET", roletype.Unknown, discoCtrl.Get)
 	e.AddGroup(discoGroup)
 
 	//Memory
-	memCtrl := &controllers.MemoryController{}
-	memGroup := droxolite.NewRouteGroup("memory", memCtrl)
+	memCtrl := &controllers.Memory{}
+	memGroup := routing.NewRouteGroup("memory", mix.JSON)
 	memGroup.AddRoute("Get Registered Services", "/", "GET", roletype.Admin, memCtrl.Get)
 	memGroup.AddRoute("Get Registered Services Names", "/apps", "GET", roletype.Admin, memCtrl.GetApps)
 	e.AddGroup(memGroup)

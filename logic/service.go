@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/louisevanderlith/droxolite"
+	"github.com/louisevanderlith/droxolite/bodies"
 	"github.com/louisevanderlith/droxolite/servicetype"
 
 	"strings"
@@ -15,7 +15,7 @@ import (
 	uuid "github.com/nu7hatch/gouuid"
 )
 
-type Services []*droxolite.Service
+type Services []*bodies.Service
 
 var serviceMap map[string]Services
 
@@ -28,7 +28,7 @@ func GetServiceMap() map[string]Services {
 }
 
 // AddService registers a new service and returns a key for that entry
-func AddService(service *droxolite.Service) (string, error) {
+func AddService(service *bodies.Service) (string, error) {
 	if !strings.Contains(service.Name, ".") {
 		return "", errors.New("invalid service Name")
 	}
@@ -55,7 +55,7 @@ func AddService(service *droxolite.Service) (string, error) {
 	return service.ID, nil
 }
 
-func isDuplicate(s *droxolite.Service) (*droxolite.Service, bool) {
+func isDuplicate(s *bodies.Service) (*bodies.Service, bool) {
 	items, _ := serviceMap[s.Name]
 
 	for _, value := range items {
@@ -112,7 +112,7 @@ func getAllowedCaller(serviceType servicetype.Enum) map[servicetype.Enum]struct{
 	return result
 }
 
-func getService(serviceName string, callerType servicetype.Enum) (*droxolite.Service, error) {
+func getService(serviceName string, callerType servicetype.Enum) (*bodies.Service, error) {
 	serviceItems, ok := serviceMap[serviceName]
 
 	if !ok {
@@ -136,8 +136,8 @@ func getService(serviceName string, callerType servicetype.Enum) (*droxolite.Ser
 	return nil, fmt.Errorf("no allowed services available for %v", callerType)
 }
 
-func getRequestingService(appID string) *droxolite.Service {
-	var result *droxolite.Service
+func getRequestingService(appID string) *bodies.Service {
+	var result *bodies.Service
 
 	for _, serviceItems := range serviceMap {
 		for _, val := range serviceItems {

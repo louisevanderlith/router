@@ -9,8 +9,8 @@ import (
 	uuid "github.com/nu7hatch/gouuid"
 )
 
-func dummyService(name string) *droxolite.Service {
-	return droxolite.NewService(name, "", 1, servicetype.API)
+func dummyService(name string) *bodies.Service {
+	return bodies.NewService(name, "", 1, servicetype.API)
 	/*  mango.Service{
 	Name:        name,
 	URL:         "http://127.0.01/" + name,
