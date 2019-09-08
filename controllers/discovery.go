@@ -20,7 +20,7 @@ type Discovery struct {
 // @Success 200 {string} models.Service.ID
 // @Failure 403 body is empty
 // @router / [post]
-func (req *Discovery) Post(ctx context.Contexer) (int, interface{}) {
+func (req *Discovery) Create(ctx context.Requester) (int, interface{}) {
 	service := &bodies.Service{}
 	ctx.Body(service)
 
@@ -41,7 +41,7 @@ func (req *Discovery) Post(ctx context.Contexer) (int, interface{}) {
 // @Success 200 {string} Service.URL
 // @Failure 403 :serviceName or :appID is empty
 // @router /:appID/:serviceName/:clean [get]
-func (req *Discovery) Get(ctx context.Contexer) (int, interface{}) {
+func (req *Discovery) Get(ctx context.Requester) (int, interface{}) {
 	appID := ctx.FindParam("appID")
 	serviceName := ctx.FindParam("serviceName")
 
@@ -66,6 +66,10 @@ func (req *Discovery) Get(ctx context.Contexer) (int, interface{}) {
 	return http.StatusOK, url
 }
 
+func (x *Discovery) Search(ctx context.Requester) (int, interface{}) {
+	return http.StatusMethodNotAllowed, nil
+}
+
 // @Title GetDirtyService
 // @Description Gets the recommended service
 // @Param	appID			path	string 	true		"the application requesting a service"
@@ -73,7 +77,7 @@ func (req *Discovery) Get(ctx context.Contexer) (int, interface{}) {
 // @Success 200 {string} Service.URL
 // @Failure 403 :serviceName or :appID is empty
 // @router /:appID/:serviceName [get]
-func (req *Discovery) GetDirty(ctx context.Contexer) (int, interface{}) {
+func (req *Discovery) GetDirty(ctx context.Requester) (int, interface{}) {
 	appID := ctx.FindParam("appID")
 	serviceName := ctx.FindParam("serviceName")
 

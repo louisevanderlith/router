@@ -14,7 +14,7 @@ type Memory struct {
 // @Description Gets the serrvices registered
 // @Success 200 {string} models.Service.ID
 // @router / [get]
-func (req *Memory) Get(ctx context.Contexer) (int, interface{}) {
+func (req *Memory) Get(ctx context.Requester) (int, interface{}) {
 	srvMap := logic.GetServiceMap()
 	return http.StatusOK, srvMap
 }
@@ -23,7 +23,7 @@ func (req *Memory) Get(ctx context.Contexer) (int, interface{}) {
 // @Description Gets the Names of services registered
 // @Success 200 {string} models.Service.ID
 // @router /apps [get]
-func (req *Memory) GetApps(ctx context.Contexer) (int, interface{}) {
+func (req *Memory) GetApps(ctx context.Requester) (int, interface{}) {
 	srvMap := logic.GetServiceMap()
 
 	result := make(map[string]struct{})

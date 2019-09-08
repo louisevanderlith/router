@@ -1,30 +1,29 @@
 package routers
 
 import (
+	"net/http"
+
+	"github.com/gorilla/mux"
 	"github.com/louisevanderlith/router/controllers"
 
 	"github.com/louisevanderlith/droxolite/mix"
 	"github.com/louisevanderlith/droxolite/resins"
 	"github.com/louisevanderlith/droxolite/roletype"
-	"github.com/louisevanderlith/droxolite/routing"
 )
 
 //Setup creates the routing paths and attaches security filters
 func Setup(e resins.Epoxi) {
-	//Discovery
+	routr := e.Router().(*mux.Router)
+
 	discoCtrl := &controllers.Discovery{}
-	discoGroup := routing.NewRouteGroup("discovery", mix.JSON)
-	discoGroup.AddRoute("Register API", "/", "POST", roletype.Unknown, discoCtrl.Post)
-	discoGroup.AddRoute("Get URL Dirty", "/{appID}/{serviceName:[a-zA-Z.]+}", "GET", roletype.Unknown, discoCtrl.GetDirty)
-	discoGroup.AddRoute("Get URL Clean", "/{appID}/{serviceName:[a-zA-Z.]+}/{clean:true|false}", "GET", roletype.Unknown, discoCtrl.Get)
-	e.AddGroup(discoGroup)
+	e.JoinBundle("/", roletype.Unknown, mix.JSON, discoCtrl)
+	e.JoinPath(routr, "/discovery/{appID}/{serviceName:[a-zA-Z.]+}", "Get URL Dirty", http.MethodGet, roletype.Unknown, mix.JSON, discoCtrl.GetDirty)
+	e.JoinPath(routr, "/discovery/{appID}/{serviceName:[a-zA-Z.]+}/{clean:true|false}", "Get URL", http.MethodGet, roletype.Unknown, mix.JSON, discoCtrl.Get)
 
 	//Memory
 	memCtrl := &controllers.Memory{}
-	memGroup := routing.NewRouteGroup("memory", mix.JSON)
-	memGroup.AddRoute("Get Registered Services", "/", "GET", roletype.Admin, memCtrl.Get)
-	memGroup.AddRoute("Get Registered Services Names", "/apps", "GET", roletype.Admin, memCtrl.GetApps)
-	e.AddGroup(memGroup)
+	e.JoinBundle("/", roletype.Admin, mix.JSON, memCtrl)
+	e.JoinPath(routr, "/memory/apps", "Get Registered Services Names", http.MethodGet, roletype.Admin, mix.JSON, memCtrl.GetApps)
 }
 
 /*

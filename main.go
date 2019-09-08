@@ -6,6 +6,7 @@ import (
 
 	"github.com/louisevanderlith/droxolite"
 	"github.com/louisevanderlith/droxolite/bodies"
+	"github.com/louisevanderlith/droxolite/element"
 	"github.com/louisevanderlith/droxolite/resins"
 	"github.com/louisevanderlith/droxolite/servicetype"
 	"github.com/louisevanderlith/router/logic"
@@ -35,7 +36,7 @@ func main() {
 		panic(err)
 	}
 
-	poxy := resins.NewBasicEpoxy(srv, droxolite.GetNoTheme(host, srv.ID, profile))
+	poxy := resins.NewMonoEpoxy(srv, element.GetNoTheme(host, srv.ID, profile))
 	routers.Setup(poxy)
 	poxy.EnableCORS(host)
 

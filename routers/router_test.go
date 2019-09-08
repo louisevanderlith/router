@@ -7,6 +7,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/louisevanderlith/droxolite/element"
+
 	"github.com/louisevanderlith/droxolite/bodies"
 	"github.com/louisevanderlith/droxolite/resins"
 	"github.com/louisevanderlith/droxolite/servicetype"
@@ -19,14 +21,14 @@ func init() {
 	srvc := bodies.NewService("Router.API", "/certs/none.pem", 8080, servicetype.API)
 	srvc.ID = "RouterTester"
 
-	apiEpoxy = resins.NewBasicEpoxy(srvc)
+	apiEpoxy = resins.NewMonoEpoxy(srvc, element.GetNoTheme(".localhost/", srvc.ID, "nobody"))
 	Setup(apiEpoxy)
 }
 
 func TestDiscovery_POST_OK(t *testing.T) {
 	servc := bodies.NewService("Nothing.API", "/certs/none.pem", 8095, servicetype.API)
 	obj, err := json.Marshal(servc)
-	req, err := http.NewRequest("POST", "/discovery/", bytes.NewBuffer(obj))
+	req, err := http.NewRequest(http.MethodPost, "/discovery", bytes.NewBuffer(obj))
 
 	if err != nil {
 		t.Fatal(err)
@@ -37,22 +39,23 @@ func TestDiscovery_POST_OK(t *testing.T) {
 	rr := httptest.NewRecorder()
 	handle.ServeHTTP(rr, req)
 
+	if rr.Code != http.StatusOK {
+		t.Fatal(rr.Code, rr.Body.String())
+	}
+
 	result := ""
-	rest, err := bodies.MarshalToResult(rr.Body.Bytes(), &result)
+	_, err = bodies.MarshalToResult(rr.Body.Bytes(), &result)
 
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	if rest.Code != 200 {
-		t.Fatal(rest.Reason)
-	}
-
-	t.Error(result)
+	//t.Error(result)
 
 	if len(result) == 0 {
 		t.Fatal("result was empty")
 	}
+
 }
 
 func TestDiscovery_GET_CleanAppServiceName_InvalidAPP(t *testing.T) {
@@ -63,20 +66,20 @@ func TestDiscovery_GET_CleanAppServiceName_InvalidAPP(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	handle := apiEpoxy.GetRouter()
+	handle := apiEpoxy.Router()
 
 	rr := httptest.NewRecorder()
 	handle.ServeHTTP(rr, req)
+
+	if rr.Code != http.StatusInternalServerError {
+		t.Fatal(rr.Body.String())
+	}
 
 	result := ""
 	rest, err := bodies.MarshalToResult(rr.Body.Bytes(), &result)
 
 	if err != nil {
 		t.Fatal(err)
-	}
-
-	if rest.Code != 500 {
-		t.Fatal(rest.Reason)
 	}
 
 	if rest.Reason != "Couldn't find an application with the given appID" {
@@ -92,10 +95,14 @@ func TestDiscovery_GET_DirtyAppServiceName_InvalidAPP(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	handle := apiEpoxy.GetRouter()
+	handle := apiEpoxy.Router()
 
 	rr := httptest.NewRecorder()
 	handle.ServeHTTP(rr, req)
+
+	if rr.Code != http.StatusInternalServerError {
+		t.Fatal(rr.Body.String())
+	}
 
 	result := ""
 	rest, err := bodies.MarshalToResult(rr.Body.Bytes(), &result)
@@ -104,59 +111,55 @@ func TestDiscovery_GET_DirtyAppServiceName_InvalidAPP(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if rest.Code != 500 {
-		t.Fatal(rest.Reason)
-	}
-
 	if rest.Reason != "Couldn't find an application with the given appID" {
 		t.Fatalf("Not expected: %s", result)
 	}
 }
 
-func TestMemory_GET_OK(t *testing.T) {
-	req, err := http.NewRequest("GET", "/memory/", nil)
+func TestMemory_GET_UnAuthed(t *testing.T) {
+	req, err := http.NewRequest("GET", "/memory", nil)
 
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	handle := apiEpoxy.GetRouter()
+	handle := apiEpoxy.Router()
 
 	rr := httptest.NewRecorder()
 	handle.ServeHTTP(rr, req)
 
+	if rr.Code != http.StatusUnauthorized {
+		t.Fatal(rr.Body.String())
+	}
+
 	result := make(map[string]logic.Services)
-	rest, err := bodies.MarshalToResult(rr.Body.Bytes(), &result)
+	_, err = bodies.MarshalToResult(rr.Body.Bytes(), &result)
 
 	if err != nil {
 		t.Fatal(err)
 	}
-
-	if rest.Code != 200 {
-		t.Fatal(rest.Reason)
-	}
 }
 
-func TestMemory_GET_Apps_OK(t *testing.T) {
+func TestMemory_GET_Apps_AuthFails(t *testing.T) {
 	req, err := http.NewRequest("GET", "/memory/apps", nil)
 
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	handle := apiEpoxy.GetRouter()
+	handle := apiEpoxy.Router()
 
 	rr := httptest.NewRecorder()
 	handle.ServeHTTP(rr, req)
 
+	if rr.Code != http.StatusUnauthorized {
+		t.Fatal(rr.Body.String())
+	}
+
 	result := make(map[string]logic.Services)
-	rest, err := bodies.MarshalToResult(rr.Body.Bytes(), &result)
+	_, err = bodies.MarshalToResult(rr.Body.Bytes(), &result)
 
 	if err != nil {
 		t.Fatal(err)
-	}
-
-	if rest.Code != 200 {
-		t.Fatal(rest.Reason)
 	}
 }
