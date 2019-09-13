@@ -3,35 +3,27 @@ package controllers
 import (
 	"net/http"
 
-	"github.com/louisevanderlith/mango/control"
+	"github.com/louisevanderlith/droxolite/context"
 	"github.com/louisevanderlith/router/logic"
 )
 
-type MemoryController struct {
-	control.APIController
-}
-
-func NewMemoryCtrl(ctrlMap *control.ControllerMap) *MemoryController {
-	result := &MemoryController{}
-	result.SetInstanceMap(ctrlMap)
-
-	return result
+type Memory struct {
 }
 
 // @Title GetRegistered Services
 // @Description Gets the serrvices registered
 // @Success 200 {string} models.Service.ID
 // @router / [get]
-func (req *MemoryController) Get() {
+func (req *Memory) Get(ctx context.Requester) (int, interface{}) {
 	srvMap := logic.GetServiceMap()
-	req.Serve(http.StatusOK, nil, srvMap)
+	return http.StatusOK, srvMap
 }
 
 // @Title GetApp Names
 // @Description Gets the Names of services registered
 // @Success 200 {string} models.Service.ID
 // @router /apps [get]
-func (req *MemoryController) GetApps() {
+func (req *Memory) GetApps(ctx context.Requester) (int, interface{}) {
 	srvMap := logic.GetServiceMap()
 
 	result := make(map[string]struct{})
@@ -39,5 +31,5 @@ func (req *MemoryController) GetApps() {
 		result[name] = struct{}{}
 	}
 
-	req.Serve(http.StatusOK, nil, result)
+	return http.StatusOK, result
 }

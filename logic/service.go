@@ -7,15 +7,15 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/louisevanderlith/mango"
-	"github.com/louisevanderlith/mango/enums"
+	"github.com/louisevanderlith/droxolite/bodies"
+	"github.com/louisevanderlith/droxolite/servicetype"
 
 	"strings"
 
 	uuid "github.com/nu7hatch/gouuid"
 )
 
-type Services []*mango.Service
+type Services []*bodies.Service
 
 var serviceMap map[string]Services
 
@@ -28,7 +28,7 @@ func GetServiceMap() map[string]Services {
 }
 
 // AddService registers a new service and returns a key for that entry
-func AddService(service *mango.Service) (string, error) {
+func AddService(service *bodies.Service) (string, error) {
 	if !strings.Contains(service.Name, ".") {
 		return "", errors.New("invalid service Name")
 	}
@@ -55,7 +55,7 @@ func AddService(service *mango.Service) (string, error) {
 	return service.ID, nil
 }
 
-func isDuplicate(s *mango.Service) (*mango.Service, bool) {
+func isDuplicate(s *bodies.Service) (*bodies.Service, bool) {
 	items, _ := serviceMap[s.Name]
 
 	for _, value := range items {
@@ -85,34 +85,34 @@ func GetServicePath(serviceName, appID string, clean bool) (string, error) {
 	service, err := getService(serviceName, requestingApp.Type)
 
 	if err != nil {
-		return "", fmt.Errorf("%s not found. %+v", serviceName, err)
+		return "", fmt.Errorf("%s didn't find %s. %+v", requestingApp.Name, serviceName, err)
 	}
 
 	return service.URL, nil
 }
 
-func getAllowedCaller(serviceType enums.ServiceType) map[enums.ServiceType]struct{} {
-	result := make(map[enums.ServiceType]struct{})
-	if serviceType == enums.APP {
-		result[enums.ANY] = struct{}{}
+func getAllowedCaller(serviceType servicetype.Enum) map[servicetype.Enum]struct{} {
+	result := make(map[servicetype.Enum]struct{})
+	if serviceType == servicetype.APP {
+		result[servicetype.ANY] = struct{}{}
 		return result
 	}
 
-	if serviceType == enums.APX {
-		result[enums.APP] = struct{}{}
+	if serviceType == servicetype.APX {
+		result[servicetype.APP] = struct{}{}
 		return result
 	}
 
-	if serviceType == enums.API {
-		result[enums.APX] = struct{}{}
-		result[enums.APP] = struct{}{}
+	if serviceType == servicetype.API {
+		result[servicetype.APX] = struct{}{}
+		result[servicetype.APP] = struct{}{}
 		return result
 	}
 
 	return result
 }
 
-func getService(serviceName string, callerType enums.ServiceType) (*mango.Service, error) {
+func getService(serviceName string, callerType servicetype.Enum) (*bodies.Service, error) {
 	serviceItems, ok := serviceMap[serviceName]
 
 	if !ok {
@@ -120,7 +120,7 @@ func getService(serviceName string, callerType enums.ServiceType) (*mango.Servic
 	}
 
 	for _, val := range serviceItems {
-		_, allowAny := val.AllowedCallers[enums.ANY]
+		_, allowAny := val.AllowedCallers[servicetype.ANY]
 
 		if allowAny {
 			return val, nil
@@ -133,11 +133,11 @@ func getService(serviceName string, callerType enums.ServiceType) (*mango.Servic
 		}
 	}
 
-	return nil, errors.New("no allowed services available")
+	return nil, fmt.Errorf("no allowed services available for %v", callerType)
 }
 
-func getRequestingService(appID string) *mango.Service {
-	var result *mango.Service
+func getRequestingService(appID string) *bodies.Service {
+	var result *bodies.Service
 
 	for _, serviceItems := range serviceMap {
 		for _, val := range serviceItems {

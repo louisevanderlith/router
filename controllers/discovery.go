@@ -1,45 +1,36 @@
 package controllers
 
 import (
-	"encoding/json"
 	"errors"
+	"log"
 	"net/http"
 
 	"strconv"
 
-	"github.com/louisevanderlith/mango"
-	"github.com/louisevanderlith/mango/control"
+	"github.com/louisevanderlith/droxolite/bodies"
+	"github.com/louisevanderlith/droxolite/context"
 	"github.com/louisevanderlith/router/logic"
 )
 
-type DiscoveryController struct {
-	control.APIController
-}
-
-func NewDiscoveryCtrl(ctrlMap *control.ControllerMap) *DiscoveryController {
-	result := &DiscoveryController{}
-	result.SetInstanceMap(ctrlMap)
-
-	return result
+type Discovery struct {
 }
 
 // @Title RegisterAPI
 // @Description Register an API
-// @Param	body		body 	mango.Service	true		"body for service content"
 // @Success 200 {string} models.Service.ID
 // @Failure 403 body is empty
 // @router / [post]
-func (req *DiscoveryController) Post() {
-	service := &mango.Service{}
-	json.Unmarshal(req.Ctx.Input.RequestBody, service)
+func (req *Discovery) Create(ctx context.Requester) (int, interface{}) {
+	service := &bodies.Service{}
+	ctx.Body(service)
 
 	appID, err := logic.AddService(service)
 
 	if err != nil {
-		req.Serve(http.StatusInternalServerError, err, nil)
+		return http.StatusInternalServerError, err
 	}
 
-	req.Serve(http.StatusOK, nil, appID)
+	return http.StatusOK, appID
 }
 
 // @Title GetService
@@ -47,20 +38,19 @@ func (req *DiscoveryController) Post() {
 // @Param	appID			path	string 	true		"the application requesting a service"
 // @Param	serviceName		path 	string	true		"the name of the service you want to get"
 // @Param	clean			path 	bool	false		"clean will return a user friendly URL and not the application's actual URL"
-// @Success 200 {string} mango.Service.URL
+// @Success 200 {string} Service.URL
 // @Failure 403 :serviceName or :appID is empty
 // @router /:appID/:serviceName/:clean [get]
-func (req *DiscoveryController) Get() {
-	appID := req.Ctx.Input.Param(":appID")
-	serviceName := req.Ctx.Input.Param(":serviceName")
+func (req *Discovery) Get(ctx context.Requester) (int, interface{}) {
+	appID := ctx.FindParam("appID")
+	serviceName := ctx.FindParam("serviceName")
 
 	if appID == "" || serviceName == "" {
 		err := errors.New("appID AND serviceName must be populated")
-		req.Serve(http.StatusBadRequest, err, nil)
-		return
+		return http.StatusBadRequest, err
 	}
 
-	clean, cleanErr := strconv.ParseBool(req.Ctx.Input.Param(":clean"))
+	clean, cleanErr := strconv.ParseBool(ctx.FindParam("clean"))
 
 	if cleanErr != nil {
 		clean = false
@@ -69,36 +59,39 @@ func (req *DiscoveryController) Get() {
 	url, err := logic.GetServicePath(serviceName, appID, clean)
 
 	if err != nil {
-		req.Serve(http.StatusInternalServerError, err, nil)
-		return
+		log.Println(err)
+		return http.StatusInternalServerError, err
 	}
 
-	req.Serve(http.StatusOK, nil, url)
+	return http.StatusOK, url
+}
+
+func (x *Discovery) Search(ctx context.Requester) (int, interface{}) {
+	return http.StatusMethodNotAllowed, nil
 }
 
 // @Title GetDirtyService
 // @Description Gets the recommended service
 // @Param	appID			path	string 	true		"the application requesting a service"
 // @Param	serviceName		path 	string	true		"the name of the service you want to get"
-// @Success 200 {string} mango.Service.URL
+// @Success 200 {string} Service.URL
 // @Failure 403 :serviceName or :appID is empty
 // @router /:appID/:serviceName [get]
-func (req *DiscoveryController) GetDirty() {
-	appID := req.Ctx.Input.Param(":appID")
-	serviceName := req.Ctx.Input.Param(":serviceName")
+func (req *Discovery) GetDirty(ctx context.Requester) (int, interface{}) {
+	appID := ctx.FindParam("appID")
+	serviceName := ctx.FindParam("serviceName")
 
 	if appID == "" || serviceName == "" {
 		err := errors.New("appID AND serviceName must be populated")
-		req.Serve(http.StatusBadRequest, err, nil)
-		return
+		return http.StatusBadRequest, err
 	}
 
 	url, err := logic.GetServicePath(serviceName, appID, false)
 
 	if err != nil {
-		req.Serve(http.StatusInternalServerError, err, nil)
-		return
+		log.Println(err)
+		return http.StatusInternalServerError, err
 	}
 
-	req.Serve(http.StatusOK, nil, url)
+	return http.StatusOK, url
 }
