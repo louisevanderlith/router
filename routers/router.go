@@ -24,6 +24,9 @@ func Setup(e resins.Epoxi) {
 	memCtrl := &controllers.Memory{}
 	e.JoinBundle("/", roletype.Admin, mix.JSON, memCtrl)
 	e.JoinPath(routr, "/memory/apps", "Get Registered Services Names", http.MethodGet, roletype.Admin, mix.JSON, memCtrl.GetApps)
+
+	appl := &controllers.Applicants{}
+	e.JoinPath(routr, "/applicants/{profile:[a-zA-Z]+}", "Get Registered Applications for the Proxy", http.MethodGet, roletype.Unknown, mix.JSON, appl.Get)
 }
 
 /*

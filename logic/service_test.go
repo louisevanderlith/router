@@ -3,18 +3,27 @@ package logic
 import (
 	"testing"
 
-	"github.com/louisevanderlith/droxolite"
+	"github.com/louisevanderlith/droxolite/bodies"
 	"github.com/louisevanderlith/droxolite/servicetype"
 
 	uuid "github.com/nu7hatch/gouuid"
 )
 
 func dummyService(name string) *bodies.Service {
-	return bodies.NewService(name, "", 1, servicetype.API)
+	return bodies.NewService(name, "profile", "", 1, servicetype.API)
 	/*  mango.Service{
 	Name:        name,
 	URL:         "http://127.0.01/" + name,
 	Type:        enums.API}*/
+}
+
+func TestDetectSubdomain(t *testing.T) {
+	in := "TestProfile.API"
+	expect := "test"
+	actual := detectSubdomain(in, "profile")
+	if actual != expect {
+		t.Errorf("Expects %s, got %s", expect, actual)
+	}
 }
 
 func TestAddService_ShouldCreateUUID(t *testing.T) {
@@ -72,7 +81,7 @@ func TestGetServicePath_SameEnv_ShouldFindService(t *testing.T) {
 	api := dummyService("Test.API")
 	AddService(api)
 
-	_, err = GetServicePath("Test.API", requestorID, false)
+	_, err = GetServicePath("Test.API", requestorID, ".localhost/", false)
 
 	if err != nil {
 		t.Error(err)
@@ -91,7 +100,7 @@ func TestGetServicePath_DiffEnv_ShouldHaveError(t *testing.T) {
 	api := dummyService("Test.API")
 	AddService(api)
 
-	_, err = GetServicePath("Test.API", requestorID, false)
+	_, err = GetServicePath("Test.API", requestorID, ".localhost/", false)
 
 	if err == nil {
 		t.Error("Expecting an error message: Test.API wasn't found for the requesting application")
@@ -104,7 +113,7 @@ func TestGetServicePath_FakeRequestorID_ShouldHaveError(t *testing.T) {
 	api := dummyService("Test.API")
 	AddService(api)
 
-	_, err := GetServicePath("Test.API", requestorID.String(), false)
+	_, err := GetServicePath("Test.API", requestorID.String(), ".localhost/", false)
 
 	if err == nil {
 		t.Error("Expecting an error message: Couldn't find an application with the given appID")
@@ -120,7 +129,7 @@ func TestGetServicePath_SameService__CantCallSelf_ShouldHaveError(t *testing.T) 
 		t.Error(err)
 	}
 
-	_, err = GetServicePath("Test.API", requestorID, false)
+	_, err = GetServicePath("Test.API", requestorID, ".localhost/", false)
 
 	if err == nil {
 		t.Error("Expecting 'Test.API wasn't found for the requesting application'")

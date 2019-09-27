@@ -4,6 +4,7 @@ import (
 	"errors"
 	"log"
 	"net/http"
+	"os"
 
 	"strconv"
 
@@ -56,7 +57,7 @@ func (req *Discovery) Get(ctx context.Requester) (int, interface{}) {
 		clean = false
 	}
 
-	url, err := logic.GetServicePath(serviceName, appID, clean)
+	url, err := logic.GetServicePath(serviceName, appID, os.Getenv("HOST"), clean)
 
 	if err != nil {
 		log.Println(err)
@@ -86,7 +87,7 @@ func (req *Discovery) GetDirty(ctx context.Requester) (int, interface{}) {
 		return http.StatusBadRequest, err
 	}
 
-	url, err := logic.GetServicePath(serviceName, appID, false)
+	url, err := logic.GetServicePath(serviceName, appID, os.Getenv("HOST"), false)
 
 	if err != nil {
 		log.Println(err)

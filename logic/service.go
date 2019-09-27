@@ -3,7 +3,7 @@ package logic
 import (
 	"errors"
 	"fmt"
-	"os"
+	"log"
 	"strconv"
 	"time"
 
@@ -25,6 +25,21 @@ func init() {
 
 func GetServiceMap() map[string]Services {
 	return serviceMap
+}
+
+func GetApplicants(profile string) map[string]string {
+	result := make(map[string]string)
+
+	for _, services := range serviceMap {
+		for _, srv := range services {
+			log.Println(srv.Profile)
+			if srv.Profile == "" || srv.Profile == profile {
+				result[srv.Name] = detectSubdomain(srv.Name, profile)
+			}
+		}
+	}
+
+	return result
 }
 
 // AddService registers a new service and returns a key for that entry
@@ -55,6 +70,12 @@ func AddService(service *bodies.Service) (string, error) {
 	return service.ID, nil
 }
 
+func detectSubdomain(srvcName, profile string) string {
+	dotIdx := strings.Index(srvcName, ".")
+
+	return strings.Replace(strings.ToLower(srvcName[:(dotIdx)]), strings.ToLower(profile), "", -1)
+}
+
 func isDuplicate(s *bodies.Service) (*bodies.Service, bool) {
 	items, _ := serviceMap[s.Name]
 
@@ -68,7 +89,7 @@ func isDuplicate(s *bodies.Service) (*bodies.Service, bool) {
 }
 
 // GetServicePath will return the correct URL for a requested service.
-func GetServicePath(serviceName, appID string, clean bool) (string, error) {
+func GetServicePath(serviceName, appID, host string, clean bool) (string, error) {
 	requestingApp := getRequestingService(appID)
 
 	if requestingApp == nil {
@@ -77,12 +98,11 @@ func GetServicePath(serviceName, appID string, clean bool) (string, error) {
 
 	if clean {
 		keyName := strings.Split(serviceName, ".")[0]
-		cleanHost := os.Getenv("HOST")
 
-		return "https://" + strings.ToLower(keyName) + cleanHost, nil
+		return "https://" + strings.ToLower(keyName) + host, nil
 	}
 
-	service, err := getService(serviceName, requestingApp.Type)
+	service, err := getService(serviceName, requestingApp.Profile, requestingApp.Type)
 
 	if err != nil {
 		return "", fmt.Errorf("%s didn't find %s. %+v", requestingApp.Name, serviceName, err)
@@ -112,7 +132,7 @@ func getAllowedCaller(serviceType servicetype.Enum) map[servicetype.Enum]struct{
 	return result
 }
 
-func getService(serviceName string, callerType servicetype.Enum) (*bodies.Service, error) {
+func getService(serviceName, profile string, callerType servicetype.Enum) (*bodies.Service, error) {
 	serviceItems, ok := serviceMap[serviceName]
 
 	if !ok {
@@ -120,20 +140,21 @@ func getService(serviceName string, callerType servicetype.Enum) (*bodies.Servic
 	}
 
 	for _, val := range serviceItems {
+		profileMatch := val.Profile == "" || val.Profile == profile
 		_, allowAny := val.AllowedCallers[servicetype.ANY]
 
-		if allowAny {
+		if allowAny && profileMatch {
 			return val, nil
 		}
 
 		_, isAllowed := val.AllowedCallers[callerType]
 
-		if isAllowed {
+		if isAllowed && profileMatch {
 			return val, nil
 		}
 	}
 
-	return nil, fmt.Errorf("no allowed services available for %v", callerType)
+	return nil, fmt.Errorf("no allowed services available for %v at %s", callerType, profile)
 }
 
 func getRequestingService(appID string) *bodies.Service {
